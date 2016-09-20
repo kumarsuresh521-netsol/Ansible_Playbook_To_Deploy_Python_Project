@@ -1,0 +1,28 @@
+---
+- hosts: pythonservers
+  become: true
+  become_method: root
+
+  tasks:
+  - name: Pull sources from the repository.
+    git: repo={{ project_repo }} dest={{ project_root }}/code/ version={{ branch }}
+    only_if: "$vm == 0"
+    notify:
+      - restart web frontend
+
+  - name: Upload configuration.
+    copy: src=webapp_settings/local_settings.{{ nickname }}.py dest={{ project_root }}/code/webapp/local_settings.py
+    only_if: "$vm == 0"
+
+  - name: Upgrade the virtualenv.
+    pip: requirements={{ project_root }}/code/requirements.txt virtualenv={{ project_root }}/env/
+
+  - name: Sync Django database.
+    shell: {{ project_root }}/env/bin/python {{ project_root }}/code/webapp/manage.py syncdb --migrate --noinput
+    
+- name: django migrate
+    django_manage: command=migrate app_path={{ install_root }}/{{ project_name }} pythonpath={{ pythonpath }}
+- name: django collectstatic
+    django_manage: command=collectstatic app_path={{ install_root }}/{{ project_name }} pythonpath={{ pythonpath }}
+  handlers:
+    - include: handlers.yml

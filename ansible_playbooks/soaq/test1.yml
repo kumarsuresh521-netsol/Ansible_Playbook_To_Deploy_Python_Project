@@ -1,0 +1,19 @@
+---
+- hosts: localhost
+  user: root
+  sudo: True
+  tasks:
+    - name: Copy files
+      copy: src=/root/.jenkins/jobs/SCALA-SOQ-SOAQXXXX/workspace/target/universal/soaq-1.0-SNAPSHOT.zip dest=/etc/ansible/playbooks
+    - name: Unzip files
+      unarchive: src=/root/.jenkins/jobs/SCALA-SOQ-SOAQXXXX/workspace/target/universal/soaq-1.0-SNAPSHOT.zip dest=/etc/ansible/playbooks copy=yes
+    - name: Create a global configuration file with name "soaq_dev.conf"
+      file: path=/etc/ansible/playbooks/soaq_dev.conf state=touch  mode=0755
+    - name: Stop Docker
+      docker:
+       name: soaq_1
+       image: soaq_updated
+       state: reloaded
+    - name: Start NoHub
+      shell: nohup bin/soaq -Dhttp.port=1212 -Dlogger.resource=prod-logger.xml -Dconfig.file=trunk.conf &
+

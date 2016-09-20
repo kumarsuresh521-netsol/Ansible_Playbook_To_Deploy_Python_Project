@@ -1,0 +1,26 @@
+---
+project_name: myproject
+project_root: /var/projects/myproject
+project_repo: git@bitbucket.org:myuser/myproject.git
+wsgi_module: ansible.wsgi
+server_name: django-hello.com www.django-hello.com
+db_name: testdb
+db_user: testuser
+db_password: test123456
+system_packages:
+  - build-essential
+  - git
+  - libevent-dev
+  - nginx
+  - postgresql
+  - postgresql-server-dev-all
+  - python-dev
+  - python-setuptools
+  - redis-server
+  - postfix
+  - python-psycopg2
+python_packages:
+  - pip
+  - virtualenv
+initfiles:
+  - gunicorn

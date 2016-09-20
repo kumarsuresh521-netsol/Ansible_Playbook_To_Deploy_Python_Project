@@ -1,0 +1,37 @@
+/root/.jenkins/jobs/SCALA-SOQ-SOAQXXXX/workspace/target/universal/soaq-1.0-SNAPSHOT.zip
+/root/.jenkins/jobs/SCALA-SOQ-SOAQXXXX/workspaces/target/universal/soaq-1.0-SNAPSHOT.zip
+
+
+52.4.214.74 ansible_user=ubuntu ansible_ssh_private_key_file=key.pem
+curl -L https://github.com/docker/machine/releases/download/v0.7.0/docker-machine-`uname -s`-`uname -m` > /usr/local/bin/docker-machine && chmod +x /usr/local/bin/docker-machine
+
+
+
+
+
+
+
+
+
+
+---
+- hosts: localhost
+  user: root
+  sudo: True
+  tasks:
+    - name: Copy files
+      copy: src=/root/.jenkins/jobs/SCALA-SOQ-SOAQXXXX/workspace/target/universal/soaq-1.0-SNAPSHOT.zip dest=/etc/ansible/playbooks
+    - name: Unzip files
+      unarchive: src=/root/.jenkins/jobs/SCALA-SOQ-SOAQXXXX/workspace/target/universal/soaq-1.0-SNAPSHOT.zip dest=/etc/ansible/playbooks copy=yes
+    - name: Create a global configuration file with name "soaq_dev.conf"
+      file: path=/etc/ansible/playbooks/soaq_dev.conf state=touch  mode=0755
+    - name: Enter In soaq_latest directory
+      command: soaq_latest
+    - name: Stop Docker
+      docker:
+         state: stop
+    - name: Start Docker
+      docker:
+          state: start
+    - name: Start NoHub
+      shell: nohup bin/soaq -Dhttp.port=1212 -Dlogger.resource=prod-logger.xml -Dconfig.file=trunk.conf &

@@ -1,0 +1,17 @@
+---
+- hosts: 54.213.200.89 ansible_user=ubuntu ansible_ssh_private_key_file=/etc/ansible/playbooks/key.pem
+  user: root
+  sudo: True
+  tasks:
+    - name: Copy files
+      copy: src=/root/.jenkins/jobs/SCALA-SOQ-SOAQXXXX/workspaces/target/universal/soaq-1.0-SNAPSHOT.zip dest=/home/soaq
+    - name: Unzip files
+      unarchive: src=/root/.jenkins/jobs/SCALA-SOQ-SOAQXXXX/workspaces/target/universal/soaq-1.0-SNAPSHOT.zip dest=/home/soaq copy=yes
+    - name: Create a global configuration file with name "soaq_dev.conf"
+      file: path=/etc/ansible/playbooks/soaq_dev.conf state=touch  mode=0755
+    - name: Enter In soaq_latest directory
+      command: soaq_latest
+    - name: Stop Docker
+      apt: docker stop 798645301fbd
+    - name: Start Docker
+      apt: docker start 798645301fbd nohup bin/soaq -Dhttp.port=1212 -Dlogger.resource=prod-logger.xml -Dconfig.file=trunk.conf &

@@ -1,0 +1,5 @@
+---
+ - hosts: javaserver
+   user: root
+   roles:
+    - python-deploycode

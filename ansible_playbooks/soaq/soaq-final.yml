@@ -1,0 +1,38 @@
+---
+- hosts: servers
+  user: root
+  sudo: True
+  tasks:
+    - name: Remove bin directory
+      file: path=/home/soaq/bin recurse=yes state=directory
+    - name: Rmove conf
+      file: path=/home/soaq/conf recurse=yes state=directory
+    - name: remove lib
+      file: path=/home/soaq/lib recurse=yes state=directory mode=755
+    - name: remove logs
+      file: path=/home/soaq/logs recurse=yes state=directory mode=755
+    - name: remove readme
+      file: path=/home/soaq/README  state=absent mode=777
+    - name: remove runing
+      file: path=/home/soaq/RUNNING_PID  state=absent mode=777
+    - name: remove share
+      file: path=/home/soaq/share recurse=no state=directory mode=755
+    - name: Install the libselinux-python package
+      yum: name=libselinux-python
+    - name: Stop Container
+      shell: docker stop 798645301fbd
+    - name: Unzip files
+      unarchive: src=/root/.jenkins/jobs/SCALA-SOQ-SOAQXXXX/workspace/target/universal/soaq-1.0-SNAPSHOT.zip dest=/home copy=yes
+    - name: Copy file
+      synchronize:
+           src: /home/soaq-1.0-SNAPSHOT/
+           dest: /home/soaq/
+      delegate_to: 52.4.214.74
+    - name: install docker-py
+      pip: name=docker-py
+    - name: Install the libselinux-python package
+      yum: name=libselinux-python state=installed
+    - name: Start Container
+      shell: docker start 798645301fbd
+    - name: Run nohup
+      raw: docker exec 798645301fbd /bin/bash -c "/opt/soaq_latest/bin/soaq -Dhttp.port=1212 -Dlogger.resource=/opt/soaq_latest/prod-logger.xml -Dconfig.file=/opt/soaq_latest/trunk.conf"

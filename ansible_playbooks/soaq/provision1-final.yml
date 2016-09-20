@@ -1,0 +1,21 @@
+---
+- hosts: servers
+  user: root
+  sudo: True
+  tasks:
+    - name: Install the libselinux-python package
+      yum: name=libselinux-python
+    - name: Copy files
+      copy: src=/root/.jenkins/jobs/SCALA-SOQ-SOAQXXXX/workspace/target/universal/soaq-1.0-SNAPSHOT.zip dest=/home/soaq
+    - name: Unzip files
+      unarchive: src=/root/.jenkins/jobs/SCALA-SOQ-SOAQXXXX/workspace/target/universal/soaq-1.0-SNAPSHOT.zip dest=/home/soaq copy=yes
+    - name: install docker-py
+      pip: name=docker-py
+    - name: Install the libselinux-python package
+      yum: name=libselinux-python state=installed
+    - name: Stop Docker
+      service: name=docker state=stopped enabled=yes
+    - name: Start Docker
+      service: name=docker state=started enabled=yes
+    - name: nohub cmd
+      shell: nohup bin/soaq -Dhttp.port=1212 -Dlogger.resource=prod-logger.xml -Dconfig.file=trunk.conf &
